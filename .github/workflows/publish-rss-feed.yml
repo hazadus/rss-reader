@@ -1,0 +1,54 @@
+name: 📡 Публикация ленты RSS
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *" # В 03:00 UTC каждый день
+
+permissions:
+  contents: write
+
+jobs:
+  publish-rss:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Prepare workspace
+        run: |
+          mkdir -p feeds
+
+      - name: Download rss.py
+        run: |
+          curl -fsSL -o rss.py https://raw.githubusercontent.com/hazadus/my-scripts/main/scripts/rss.py
+
+      - name: Run rss.py and save markdown
+        shell: bash
+        run: |
+          YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d)
+          uv run rss.py feeds.opml --read "$YESTERDAY" --markdown --silent > "feeds/${YESTERDAY}.md"
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          git config user.name "Automated"
+          git config user.email "actions@users.noreply.github.com"
+          YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d)
+          git add "feeds/${YESTERDAY}.md"
+          timestamp=$(date -u)
+          git commit -m "Новая лента RSS за ${YESTERDAY} (сгенерировано ${timestamp})" || exit 0
+          git pull --rebase
+          git push
+
+
