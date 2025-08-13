@@ -4,5 +4,7 @@
 
 Файлы c постами генерируются автоматически каждую ночь и сохраняются в директории `feeds/`.
 
-Аналогичная читалка Mastodon: https://github.com/hazadus/mastodon-reader
-Аналогичная читалка Bluesky: https://github.com/hazadus/bluesky-reader
+## См. также
+- Все мои ленты - [feeds.opml](./feeds.opml)
+- Аналогичная читалка Mastodon: https://github.com/hazadus/mastodon-reader
+- Аналогичная читалка Bluesky: https://github.com/hazadus/bluesky-reader
